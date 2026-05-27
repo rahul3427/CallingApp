@@ -15,7 +15,7 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 5000;
-const APP_PASSWORD = process.env.APP_PASSWORD || "RahulMayuri"; 
+const APP_PASSWORD = process.env.APP_PASSWORD || "Rahul12345"; 
 const CHAT_HISTORY_FILE = path.join(__dirname, "chat_history.json");
 
 // Serve static files from the React client build

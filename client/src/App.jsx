@@ -4,7 +4,7 @@ import Peer from 'simple-peer';
 import { 
   Phone, PhoneOff, Video, VideoOff, Mic, MicOff, Lock, 
   Send, Trash2, Heart, Download, Sparkles, LogOut, Bell, BellOff, Check, CheckCheck,
-  Smile
+  Smile, MoreVertical
 } from 'lucide-react';
 import './App.css';
 
@@ -226,6 +226,9 @@ function App() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [activeEmojiTab, setActiveEmojiTab] = useState(0);
 
+  // Dropdown states
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+
   // Refs
   const localVideo = useRef(null);
   const remoteVideo = useRef(null);
@@ -236,6 +239,8 @@ function App() {
   const emojiPickerRef = useRef(null);
   const emojiBtnRef = useRef(null);
   const chatInputRef = useRef(null);
+  const moreMenuRef = useRef(null);
+  const moreMenuBtnRef = useRef(null);
 
   // Scroll to bottom helper
   const scrollToBottom = () => {
@@ -272,12 +277,16 @@ function App() {
     setFloatingHearts((prev) => prev.filter((h) => h.id !== id));
   };
 
-  // Handle clicking outside the emoji picker to close it
+  // Handle clicking outside the emoji picker & more options dropdown to close them
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (emojiPickerRef.current && !emojiPickerRef.current.contains(e.target) && 
           emojiBtnRef.current && !emojiBtnRef.current.contains(e.target)) {
         setShowEmojiPicker(false);
+      }
+      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target) &&
+          moreMenuBtnRef.current && !moreMenuBtnRef.current.contains(e.target)) {
+        setShowMoreMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -881,27 +890,6 @@ function App() {
           </div>
 
           <div className="header-actions">
-            {/* PWA Install Button */}
-            {isInstallable && (
-              <button 
-                className="header-btn btn-install" 
-                onClick={handleInstallApp} 
-                title="Install Google Meet App"
-              >
-                <Download size={22} />
-              </button>
-            )}
-
-            {/* Notification Permission Toggle */}
-            <button 
-              className="header-btn" 
-              onClick={requestNotificationPermission}
-              title={bellGranted ? "Notifications Enabled" : "Enable Browser Notifications"}
-              style={{ color: bellGranted ? 'var(--wa-green)' : '#9ca3af' }}
-            >
-              {bellGranted ? <Bell size={20} /> : <BellOff size={20} />}
-            </button>
-
             {/* Audio Call Button */}
             <button 
               className="header-btn btn-call" 
@@ -922,23 +910,67 @@ function App() {
               <Video size={20} />
             </button>
 
-            {/* Clear Chat Button */}
-            <button 
-              className="header-btn" 
-              onClick={handleClearChat}
-              title="Clear Chat History"
-            >
-              <Trash2 size={18} />
-            </button>
-
-            {/* Logout Button */}
-            <button 
-              className="header-btn" 
-              onClick={handleLogout}
-              title="Logout from Room"
-            >
-              <LogOut size={18} />
-            </button>
+            {/* More Options Dropdown */}
+            <div className="more-menu-container">
+              <button
+                ref={moreMenuBtnRef}
+                className={`header-btn ${showMoreMenu ? 'active' : ''}`}
+                onClick={() => setShowMoreMenu(!showMoreMenu)}
+                title="More Options"
+              >
+                <MoreVertical size={20} />
+              </button>
+              {showMoreMenu && (
+                <div className="header-dropdown-menu" ref={moreMenuRef}>
+                  {isInstallable && (
+                    <button 
+                      className="dropdown-item btn-install" 
+                      onClick={() => {
+                        handleInstallApp();
+                        setShowMoreMenu(false);
+                      }} 
+                      title="Install Google Meet App"
+                    >
+                      <Download size={18} />
+                      <span>Install App</span>
+                    </button>
+                  )}
+                  <button 
+                    className="dropdown-item" 
+                    onClick={() => {
+                      requestNotificationPermission();
+                      setShowMoreMenu(false);
+                    }}
+                    title={bellGranted ? "Notifications Enabled" : "Enable Browser Notifications"}
+                  >
+                    {bellGranted ? <Bell size={18} style={{ color: 'var(--wa-green)' }} /> : <BellOff size={18} />}
+                    <span>Notifications</span>
+                  </button>
+                  <button 
+                    className="dropdown-item" 
+                    onClick={() => {
+                      handleClearChat();
+                      setShowMoreMenu(false);
+                    }}
+                    title="Clear Chat History"
+                  >
+                    <Trash2 size={18} />
+                    <span>Clear Chat</span>
+                  </button>
+                  <button 
+                    className="dropdown-item" 
+                    onClick={() => {
+                      handleLogout();
+                      setShowMoreMenu(false);
+                    }}
+                    title="Logout from Workspace"
+                  >
+                    <LogOut size={18} />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
