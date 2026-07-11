@@ -1,11 +1,14 @@
 {
   "name": "sonar-calling-app",
   "version": "1.0.0",
-  "description": "Unified full-stack deployment for Render",
+  "description": "Private couple chat app with calling features",
   "scripts": {
-    "start": "cd server && node index.js",
-    "build": "cd client && npm run build",
+    "start": "node server/index.js",
+    "build": "cd client && npm install && npm run build",
     "install-all": "cd server && npm install && cd ../client && npm install",
-    "render-postbuild": "npm run install-all && npm run build"
+    "railway-postbuild": "npm run install-all && npm run build"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
