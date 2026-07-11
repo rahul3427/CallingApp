@@ -54,9 +54,14 @@ io.on("connection", (socket) => {
   socket.on("join-room", (data) => {
     const { nickname, password } = data;
     
-    if (password !== APP_PASSWORD) {
+    // Allow direct access for the two approved users
+    const ALLOWED_USERS = ["Jesika", "David"];
+    const isDirectAccess = password === "DIRECT_ACCESS" && ALLOWED_USERS.includes(nickname);
+    const isPasswordAccess = password === APP_PASSWORD;
+
+    if (!isDirectAccess && !isPasswordAccess) {
       console.log(`Failed login attempt from ${socket.id} with nick: ${nickname}`);
-      socket.emit("join-error", "Incorrect passphrase. Please try again.");
+      socket.emit("join-error", "Access denied. Please try again.");
       return;
     }
 
@@ -88,7 +93,7 @@ io.on("connection", (socket) => {
     io.emit("user-list", Object.values(activeUsers));
   });
 
-  // Handle regular chat messages
+  // Handle regular chat messages (text + images)
   socket.on("send-message", (data) => {
     const user = activeUsers[socket.id];
     if (!user) return; // User not logged in
@@ -96,9 +101,12 @@ io.on("connection", (socket) => {
     const msg = {
       id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       sender: user.nickname,
-      text: data.text,
+      text: data.text || '',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isHeart: data.isHeart || false
+      isHeart: data.isHeart || false,
+      isImage: data.isImage || false,
+      imageData: data.imageData || null,
+      imageName: data.imageName || null
     };
 
     chatHistory.push(msg);
